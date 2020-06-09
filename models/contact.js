@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const contactSchema = new Schema({
   name: String,
-  email: {type: String, required: false, lowercase: true, unique: true},
+  email: {type: String, required: false, lowercase: true},
   owner: Schema.Types.ObjectId,
   fields: Object,
   notes: [{type: Schema.Types.ObjectId, ref: 'Note'}],
