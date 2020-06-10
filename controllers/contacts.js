@@ -7,6 +7,7 @@ module.exports = {
     create,
     createFromCSV,
     deletebyId,
+    updatebyId,
 }
 
 function create(req, res) {
@@ -73,5 +74,25 @@ function deletebyId(req, res) {
                 res.send(deletedContact);
             });
         });
-    })
+    });
+}
+
+function updatebyId(req, res) {
+    Contact.findById(req.body.id, function(err, contact) {
+        User.findById(contact.owner, function(err, user) {
+            let updateFields = req.body.fields;
+            let fields = {...contact.fields};
+            let errors = [];
+            Object.keys(updateFields).forEach(key => {
+                if (user.contactFields.includes(key)) {
+                    fields[key] = updateFields[key];
+                } else {
+                    errors.push(`${key} could not be updated as this field is not defined`);
+                }
+            });
+            Contact.findByIdAndUpdate(req.body.id, {fields}, function(err) {
+                res.send(errors);
+            });
+        });
+    });
 }
