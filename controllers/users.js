@@ -3,9 +3,18 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET;
 
 module.exports = {
-  signup,
-  login,
+    getById,
+    signup,
+    login,
 };
+
+function getById(req, res) {
+    User.findById(req.params.id)
+    .populate('contacts')
+    .exec((err, user) => {
+        res.send(user);
+    });
+}
 
 async function signup(req, res) {
   const user = new User(req.body);

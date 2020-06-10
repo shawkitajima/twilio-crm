@@ -8,6 +8,12 @@ const userSchema = new Schema({
   email: {type: String, required: true, lowercase: true, unique: true},
   password: String,
   contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}],
+  // contacts should have fields assigned to them on a user basis, as different users may want different fields
+  // we can also access these fields in the front-end, so users can edit them there
+  contactFields: {
+    type: Array,
+    default: ['first name', 'last name', 'email', 'phone', 'mobile', 'street address', 'city', 'state']
+  },
   reports: [{type: Schema.Types.ObjectId, ref: 'Report'}],
   phones: [String],
 }, {

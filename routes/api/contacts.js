@@ -5,6 +5,6 @@ const multer = require('multer');
 const upload = multer({dest: 'tmp/csv/'});
 
 router.post('/', contactsCtrl.create);
-router.post('/create/csv', upload.single('file'), contactsCtrl.readCsv);
+router.post('/create/csv', upload.single('file'), contactsCtrl.createFromCSV);
 
 module.exports = router;

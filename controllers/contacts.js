@@ -5,29 +5,48 @@ const csv=require('csvtojson')
 
 module.exports = {
     create,
-    readCsv,
+    createFromCSV,
 }
 
 function create(req, res) {
-    Contact.create(req.body.contact, function(err, contact) {
-        User.findById(req.body.contact.owner, function(err, user) {
-            const contacts = [...user.contacts];
-            contacts.push(contact._id);
-            User.findByIdAndUpdate(user._id, {contacts}, {new: true}, function(err, updatedUser) {
-                res.send(updatedUser);
+    // we first need to grab the contact fields so that contact adheres to the fields
+    User.findById(req.body.id, function(err, user) {
+        // we are going to make a separate fields obj
+        // and update the values that exist in the contact fields
+        let fields = user.contactFields.reduce((acc, field) => ({...acc, [field]: null}), {});
+        let newFields = req.body.fields;
+        let errors = [];
+        Object.keys(newFields).forEach(key => {
+            if (user.contactFields.includes(key)) {
+                fields[key] = newFields[key]
+            } else {
+                errors.push(`${key} is not included in your contact fields so ${newFields[key]} could not be created`)
+            }
+        });
+        Contact.create({owner: req.body.id, fields}, function(err, contact) {
+            User.findByIdAndUpdate(req.body.id, {contacts: [...user.contacts, contact._id]}, 
+                function(err, updatedUser) {
+                    res.send({errors});
             });
         });
     });
 }
 
-function readCsv(req, res) {
+
+// requires csv to be included as file key, and user id to be passed in via req.body
+function createFromCSV(req, res) {
     csv()
     .fromFile(req.file.path)
     .then(objArr => {
+        // we need to format the csv object array properly
+        creationArray = []
         objArr.forEach(obj => {
-            obj.owner = req.body.id;
+            creationArray.push({
+                owner: req.body.id,
+                fields: obj
+            });
         });
-        Contact.create(objArr, function(err, result) {
+        Contact.create(creationArray, function(err, result) {
             if (err) console.log(err);
             let addedIds = result.map(contact => contact._id);
             User.findById(req.body.id, function(err, user) {    
