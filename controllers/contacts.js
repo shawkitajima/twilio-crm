@@ -6,6 +6,7 @@ const csv=require('csvtojson')
 module.exports = {
     create,
     createFromCSV,
+    deletebyId,
 }
 
 function create(req, res) {
@@ -18,9 +19,9 @@ function create(req, res) {
         let errors = [];
         Object.keys(newFields).forEach(key => {
             if (user.contactFields.includes(key)) {
-                fields[key] = newFields[key]
+                fields[key] = newFields[key];
             } else {
-                errors.push(`${key} is not included in your contact fields so ${newFields[key]} was not uploaded`)
+                errors.push(`${key} is not included in your contact fields so ${newFields[key]} was not uploaded`);
             }
         });
         Contact.create({owner: req.body.id, fields}, function(err, contact) {
@@ -61,4 +62,16 @@ function createFromCSV(req, res) {
             });
         });
     });
+}
+
+function deletebyId(req, res) {
+    User.findById(req.params.userId, function(err, user) {
+        let contacts = [...user.contacts].filter(contact => contact !== req.params.contactId);
+        User.findByIdAndUpdate(req.params.userId, {contacts}, function(err, newUser) {
+            if (err) console.log(err);
+            Contact.findByIdAndDelete(req.params.contactId, function(err, deletedContact) {
+                res.send(deletedContact);
+            });
+        });
+    })
 }

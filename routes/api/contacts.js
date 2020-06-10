@@ -6,5 +6,6 @@ const upload = multer({dest: 'tmp/csv/'});
 
 router.post('/', contactsCtrl.create);
 router.post('/create/csv', upload.single('file'), contactsCtrl.createFromCSV);
+router.delete('/:userId/:contactId', contactsCtrl.deletebyId);
 
 module.exports = router;
