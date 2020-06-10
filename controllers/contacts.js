@@ -20,7 +20,7 @@ function create(req, res) {
             if (user.contactFields.includes(key)) {
                 fields[key] = newFields[key]
             } else {
-                errors.push(`${key} is not included in your contact fields so ${newFields[key]} could not be created`)
+                errors.push(`${key} is not included in your contact fields so ${newFields[key]} was not uploaded`)
             }
         });
         Contact.create({owner: req.body.id, fields}, function(err, contact) {
@@ -32,29 +32,32 @@ function create(req, res) {
     });
 }
 
-
-// requires csv to be included as file key, and user id to be passed in via req.body
 function createFromCSV(req, res) {
-    csv()
-    .fromFile(req.file.path)
-    .then(objArr => {
-        // we need to format the csv object array properly
-        creationArray = []
-        objArr.forEach(obj => {
-            creationArray.push({
-                owner: req.body.id,
-                fields: obj
+    User.findById(req.body.id, function(err, user) {
+        csv()
+        .fromFile(req.file.path)
+        .then(objArr => {
+            // initialize the parent and error array
+            let contacts = [];
+            let errors = [];
+            // update the arrays
+            objArr.forEach(contact => {
+                let fields = user.contactFields.reduce((acc, field) => ({...acc, [field]: null}), {});
+                Object.keys(contact).forEach(key => {
+                    if (user.contactFields.includes(key)) {
+                        fields[key] = contact[key];
+                    } else {
+                        errors.push(`${key} is not included in your contact fields so ${contact[key]} was not uploaded`);
+                    }
+                });
+                contacts.push({owner: user._id, fields});
             });
-        });
-        Contact.create(creationArray, function(err, result) {
-            if (err) console.log(err);
-            let addedIds = result.map(contact => contact._id);
-            User.findById(req.body.id, function(err, user) {    
-                if (err) console.log(err);
-                let contacts = [...user.contacts, ...addedIds];
-                User.findByIdAndUpdate(user._id, {contacts}, {new: true}, function(err, updatedUser) {
-                    res.send(updatedUser);
-                })
+            // we need to attach the contacts back to the user
+            Contact.create(contacts, function(err, createdContacts) {
+                let addedContacts = createdContacts.map(contact => contact._id);
+                User.findByIdAndUpdate(user._id, {contacts: [...user.contacts, ...addedContacts]}, function(err, updatedUser) {
+                    res.send(errors);
+                });
             });
         });
     });
