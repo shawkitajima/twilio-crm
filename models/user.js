@@ -9,10 +9,13 @@ const userSchema = new Schema({
   password: String,
   contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}],
   // contacts should have fields assigned to them on a user basis, as different users may want different fields
-  // we can also access these fields in the front-end, so users can edit them there
+  // we can also access these fields in the front-end, so users can edit them
   contactFields: {
-    type: Array,
-    default: ['first name', 'last name', 'email', 'phone', 'mobile', 'street address', 'city', 'state']
+    type: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Field',
+    }],
+    default: ['5ee2b0baed3f3c2c7e797f91', '5ee2b0aced3f3c2c7e797f90', '5ee2b092ed3f3c2c7e797f8f', '5ee2b081ed3f3c2c7e797f8e', '5ee2b074ed3f3c2c7e797f8d', '5ee2b059ed3f3c2c7e797f8c', '5ee2b04ded3f3c2c7e797f8b', '5ee2b044ed3f3c2c7e797f8a', '5ee2b028ed3f3c2c7e797f89']
   },
   reports: [{type: Schema.Types.ObjectId, ref: 'Report'}],
   phones: [String],

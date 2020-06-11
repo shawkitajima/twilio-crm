@@ -1,8 +1,6 @@
 const Contact = require('../models/contact');
 const User = require('../models/user');
 
-const csv=require('csvtojson')
-
 module.exports = {
     create,
     deletebyId,
@@ -11,14 +9,16 @@ module.exports = {
 
 function create(req, res) {
     // we first need to grab the contact fields so that contact adheres to the fields
-    User.findById(req.body.id, function(err, user) {
+    User.findById(req.body.id)
+    .populate('contactFields')
+    .exec(function(err, user) {
         // we are going to make a separate fields obj
         // and update the values that exist in the contact fields
-        let fields = user.contactFields.reduce((acc, field) => ({...acc, [field]: null}), {});
+        let fields = user.contactFields.reduce((acc, field) => ({...acc, [field.name]: null}), {});
         let newFields = req.body.fields;
         let errors = [];
         Object.keys(newFields).forEach(key => {
-            if (user.contactFields.includes(key)) {
+            if (user.contactFields.some(field => field.name === key)) {
                 fields[key] = newFields[key];
             } else {
                 errors.push(`${key} is not included in your contact fields so ${newFields[key]} was not uploaded`);
@@ -30,7 +30,7 @@ function create(req, res) {
                     res.send({errors});
             });
         });
-    });
+    })
 }
 
 function deletebyId(req, res) {
@@ -48,14 +48,16 @@ function deletebyId(req, res) {
 function updatebyId(req, res) {
     Contact.findById(req.body.id, function(err, contact) {
         // we are going to grab the user so we can check the contact fields
-        User.findById(contact.owner, function(err, user) {
+        User.findById(contact.owner)
+        .populate('contactFields')
+        .exec(err, function(err, user) {
             // Now we can check the update fields against the contact fields
             // If the key is there, then we update
             let updateFields = req.body.fields;
             let fields = {...contact.fields};
             let errors = [];
             Object.keys(updateFields).forEach(key => {
-                if (user.contactFields.includes(key)) {
+                if (user.contactFields.some(field => field.name === key)) {
                     fields[key] = updateFields[key];
                 } else {
                     errors.push(`${key} could not be updated as this field is not defined`);
