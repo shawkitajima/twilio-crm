@@ -9,10 +9,10 @@ module.exports = {
 }
 
 
-
-
 function create(req, res) {
-    User.findById(req.body.id, function(err, user) {
+    User.findById(req.body.id)
+    .populate('contactFields')
+    .exec(function(err, user) {
         csv()
         .fromFile(req.file.path)
         .then(objArr => {
@@ -21,9 +21,9 @@ function create(req, res) {
             let errors = [];
             // update the arrays
             objArr.forEach(contact => {
-                let fields = user.contactFields.reduce((acc, field) => ({...acc, [field]: null}), {});
+                let fields = user.contactFields.reduce((acc, field) => ({...acc, [field.name]: null}), {});
                 Object.keys(contact).forEach(key => {
-                    if (user.contactFields.includes(key)) {
+                    if (user.contactFields.some(field => field.name === key)) {
                         fields[key] = contact[key];
                     } else {
                         errors.push(`${key} is not included in your contact fields so ${contact[key]} was not uploaded`);
@@ -35,7 +35,7 @@ function create(req, res) {
             Contact.create(contacts, function(err, createdContacts) {
                 let addedContacts = createdContacts.map(contact => contact._id);
                 User.findByIdAndUpdate(user._id, {contacts: [...user.contacts, ...addedContacts]}, function(err, updatedUser) {
-                    res.send(errors);
+                    res.send({errors});
                 });
             });
         });
