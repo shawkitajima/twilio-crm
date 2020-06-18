@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {Editor, EditorState, RichUtils, convertToRaw, convertFromRaw} from 'draft-js';
 import 'draft-js/dist/Draft.css';
+import './EditorStyles.css';
+
 
 const TextEditor = props => {
     const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
@@ -23,7 +25,11 @@ const TextEditor = props => {
         console.log(contentState);
     }
 
-    
+    const handleStyle = style => {
+        const newState = RichUtils.toggleInlineStyle(editorState, style);
+        setEditorState(newState);
+    }
+
     useEffect(() => {
 
     }, [])
@@ -31,7 +37,10 @@ const TextEditor = props => {
 
     return (
         <div>
-            <Editor editorState={editorState} onChange={setEditorState} handleKeyCommand={handleKeyCommand} spellCheck={true}  readOnly={true}/>
+            <button onClick={() => handleStyle('BOLD')}>Bold!</button>
+            <button onClick={() => handleStyle('ITALIC')}>Italic</button>
+            <button onClick={() => handleStyle('UNDERLINE')}>Underline</button>
+            <Editor editorState={editorState} onChange={setEditorState} handleKeyCommand={handleKeyCommand} spellCheck={true}  readOnly={false}/>
             <button onClick={() => handleClick()}>Click Me</button>
         </div>
     )

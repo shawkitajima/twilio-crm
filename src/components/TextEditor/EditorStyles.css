@@ -1,0 +1,14 @@
+/* Styling the draft-js editor component */
+div.DraftEditor-root {
+    border: 1px solid #000;
+    background-color: white;
+    color: black;
+    height: 10rem;
+    width: 20rem;
+    overflow-y: auto;
+    font-size: 12px;
+  }
+  div.DraftEditor-editorContainer,
+  div.public-DraftEditor-content {
+    height: 100%;
+  }
