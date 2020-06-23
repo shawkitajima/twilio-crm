@@ -5,6 +5,7 @@ const Contact = require('../models/contact');
 module.exports = {
     create,
     deleteById,
+    update,
 }   
 
 function create(req, res) {
@@ -55,5 +56,21 @@ function deleteById(req, res) {
         } else {
             res.send({errors: 'you cannot delete this field as it is not removeable'});
         }
+    });
+}
+
+function update(req, res) {
+    User.findById(req.body.id, function(err, user) {
+        Field.findById(req.body.fieldId, function(err, field) {
+            // check for errors
+            if (!user.contactFields.includes(field._id)) return res.send({errors: 'this field does not belong to this user'});
+            if (!field.removeable) return res.send({errors: 'you cannot edit this field'});
+            // we don't know what they want to update, so we check changes
+            let name = req.body.name ? req.body.name : field.name;
+            let dataType = req.body.dataType ? req.body.dataType : field.dataType;
+            Field.findByIdAndUpdate(field._id, {name, dataType}, {runValidators: true}, function(errors, updatedField) {
+                res.send({errors});
+            });
+        });
     });
 }

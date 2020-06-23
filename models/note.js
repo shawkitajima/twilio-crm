@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const noteSchema = new Schema({
   owner: {type: Schema.Types.ObjectId, ref: 'Contact'},
-  body: String,
+  body: Object,
 }, {
   timestamps: true
 });
