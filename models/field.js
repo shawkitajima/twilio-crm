@@ -17,7 +17,10 @@ const fieldSchema = new Schema({
       type: String,
       enum: ['text', 'number', 'phone', 'date', 'boolean', 'email', 'address']
   },
-  removeable: Boolean,
+  removeable: {
+    type: Boolean,
+    default: true,
+  },
 }, {
   timestamps: true
 });

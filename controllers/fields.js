@@ -68,8 +68,22 @@ function update(req, res) {
             // we don't know what they want to update, so we check changes
             let name = req.body.name ? req.body.name : field.name;
             let dataType = req.body.dataType ? req.body.dataType : field.dataType;
+            // grab  the old name
+            let oldName = field.name
             Field.findByIdAndUpdate(field._id, {name, dataType}, {runValidators: true}, function(errors, updatedField) {
                 res.send({errors});
+                // Update each of the contacts to have this field
+                Contact.find({owner: user._id}, function(err, contacts) {
+                  contacts.forEach(contact => {
+                    let fields = {...contact.fields};
+                    let value = fields[oldName];
+                    delete fields[oldName];
+                    fields[name] = value;
+                    Contact.findByIdAndUpdate(contact._id, {fields}, function(err, updatedContact) {
+                        if (err) console.log(err);
+                    });
+                  });
+                });
             });
         });
     });
