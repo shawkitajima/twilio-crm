@@ -2,13 +2,20 @@ const Contact = require('../models/contact');
 const User = require('../models/user');
 
 module.exports = {
-    getById,
+    getOnebyContactId,
+    getAllByUserId,
     create,
     deletebyId,
     updatebyId,
 }
 
-function getById(req, res) {
+function getOnebyContactId(req, res) {
+    Contact.findById(req.params.id, function(err, contact) {
+        res.send(contact);
+    })
+}
+
+function getAllByUserId(req, res) {
     Contact.find({owner: req.params.id}, function(err, contacts) {
         res.send(contacts);
     });
