@@ -2,9 +2,16 @@ const Contact = require('../models/contact');
 const User = require('../models/user');
 
 module.exports = {
+    getById,
     create,
     deletebyId,
     updatebyId,
+}
+
+function getById(req, res) {
+    Contact.find({owner: req.params.id}, function(err, contacts) {
+        res.send(contacts);
+    });
 }
 
 function create(req, res) {
@@ -25,23 +32,15 @@ function create(req, res) {
             }
         });
         Contact.create({owner: req.body.id, fields}, function(err, contact) {
-            User.findByIdAndUpdate(req.body.id, {contacts: [...user.contacts, contact._id]}, 
-                function(err, updatedUser) {
-                    res.send({errors});
-            });
+            if (err) return res.send(err);
+            res.send({errors});
         });
     })
 }
 
 function deletebyId(req, res) {
-    User.findById(req.params.userId, function(err, user) {
-        let contacts = [...user.contacts].filter(contact => contact !== req.params.contactId);
-        User.findByIdAndUpdate(req.params.userId, {contacts}, function(err, newUser) {
-            if (err) console.log(err);
-            Contact.findByIdAndDelete(req.params.contactId, function(err, deletedContact) {
-                res.send(deletedContact);
-            });
-        });
+    Contact.findByIdAndDelete(req.params.id, function(err, deletedContact) {
+        res.send(deletedContact);
     });
 }
 
