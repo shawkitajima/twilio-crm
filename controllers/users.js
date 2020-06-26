@@ -11,6 +11,7 @@ module.exports = {
 function getById(req, res) {
     User.findById(req.params.id)
     .populate('contacts')
+    .populate('contactFields')
     .exec((err, user) => {
         res.send(user);
     });

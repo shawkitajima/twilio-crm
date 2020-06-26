@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 module.exports = {
     create,
     deleteByIds,
+    updateByIds
 }
 
 function create(req, res) {
@@ -56,5 +57,45 @@ function deleteByIds(req, res) {
     });
 }
 
+async function updateByIds(req, res) {
+    // grab the user model so we can validate fields
+    User.findById(req.body.id).populate('contactFields').exec(function(err, user) {
+        csv()
+        .fromFile(req.file.path)
+        .then(objArr => {
+            let errors = [];
+            Promise.all(objArr.map(contact => update(contact.id, contact, user.contactFields))).then(responses => {
+                responses.forEach(err => {
+                    errors = [...errors, ...err];
+                });
+                res.send({errors});
+            });
+        }); 
+    });
+}
+
+
+// Update by Id helper function
+function update(id, updateFields, contactFields) {
+    return new Promise((resolve, reject) => {
+        Contact.findById(id, function(err, contact) {
+            let fields = {...contact.fields};
+            let errors = [];
+            Object.keys(updateFields).forEach(key => {
+                console.log(key);
+                if (contactFields.some(field => field.name === key)) {
+                    fields[key] = updateFields[key];
+                    // we're not going to bother adding the id field to the errors
+                } else if (key !== "id") {
+                    errors.push(`${key} could not be updated as this field is not defined`);
+                }
+            });
+            Contact.findByIdAndUpdate(id, {fields}, function(err) {
+                if (err) resolve ({errors: err})
+                resolve(errors);
+            });
+        });
+    });
+}
 
 
