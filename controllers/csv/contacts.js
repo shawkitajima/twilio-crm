@@ -78,6 +78,7 @@ async function updateByIds(req, res) {
 // Update by Id helper function
 function update(id, updateFields, contactFields) {
     return new Promise((resolve, reject) => {
+        if (!id) return resolve(['missing id']);
         Contact.findById(id, function(err, contact) {
             let fields = {...contact.fields};
             let errors = [];
