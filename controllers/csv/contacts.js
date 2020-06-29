@@ -57,9 +57,10 @@ function deleteByIds(req, res) {
     });
 }
 
-async function updateByIds(req, res) {
+function updateByIds(req, res) {
     // grab the user model so we can validate fields
     User.findById(req.body.id).populate('contactFields').exec(function(err, user) {
+        if (err) return res.send({errors: err});
         csv()
         .fromFile(req.file.path)
         .then(objArr => {
@@ -83,12 +84,11 @@ function update(id, updateFields, contactFields) {
             let fields = {...contact.fields};
             let errors = [];
             Object.keys(updateFields).forEach(key => {
-                console.log(key);
                 if (contactFields.some(field => field.name === key)) {
                     fields[key] = updateFields[key];
                     // we're not going to bother adding the id field to the errors
                 } else if (key !== "id") {
-                    errors.push(`${key} could not be updated as this field is not defined`);
+                    errors.push(`${key} could not be updated as this field is not defined for ${id}`);
                 }
             });
             Contact.findByIdAndUpdate(id, {fields}, function(err) {

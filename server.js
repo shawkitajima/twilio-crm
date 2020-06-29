@@ -21,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 app.use('/api/users', require('./routes/api/users'));
 app.use('/api/contacts', require('./routes/api/contacts'));
 app.use('/api/fields', require('./routes/api/fields'));
+app.use('/api/reports', require('./routes/api/reports'));
 app.use('/csv/contacts', require('./routes/csv/contacts'));
 
 // The following "catch all" route (note the *)is necessary
