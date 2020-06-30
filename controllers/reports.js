@@ -1,10 +1,41 @@
 const Report = require('../models/report');
+const Contact = require('../models/contact');
 
 module.exports = {
+    runReport,
     getAll,
     create,
     deleteById,
     update,
+}
+
+// accepts a report id to "run" a report
+// grabs all contacts whose owner is the report owner, and then iterates through the criteria
+// assumes all criteria are "AND" criteria
+function runReport(req, res) {
+    Report.findById(req.params.id, function(err, report) {
+        Contact.find({owner: report.owner}, function(err, allContacts) {
+            let contacts = [];
+            report.criteria.forEach((criteria, idx) => {
+                console.log(criteria);
+                if (!idx) {
+                    contacts = [...checkCriteria(allContacts, criteria.criteria, criteria.value, criteria.method)]
+                } else {
+                    contacts = [...checkCriteria(contacts, criteria.criteria, criteria.value, criteria.method)]
+                }
+            })
+            res.send(contacts);
+        });
+    })
+}
+
+
+// utility function for checking criteria
+function checkCriteria(allContacts, criteria, value, method) {
+    let contacts = allContacts.filter(contact =>
+        filterFunctions[method](contact.fields[criteria], value)
+    );
+    return contacts;
 }
 
 function getAll(req, res) {
@@ -41,4 +72,15 @@ function update(req, res) {
             res.send(updatedReport);
         });
     });
+}
+
+
+let filterFunctions = {
+    exactMatch: function(value, criteriaValue) {
+        console.log(value, criteriaValue);
+        return value === criteriaValue;
+    },
+    includes: function(value, criteriaValue) {
+        return value.includes(criteriaValue);
+    }
 }

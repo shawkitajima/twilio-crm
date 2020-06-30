@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const reportSchema = new Schema({
   name: String,
   owner: Schema.Types.ObjectId,
-  criteria: Object,
+  criteria: Array,
 }, {
   timestamps: true
 });
