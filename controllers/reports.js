@@ -86,6 +86,6 @@ let filterMethods = {
     greaterThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == value,
     lessThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == criteriaValue,
     // boolean methods
-    true: value => Boolean(value),
-    false: value => !Boolean(value),
+    true: value => value == 'true',
+    false: value => value == 'false',
 }
