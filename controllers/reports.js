@@ -33,7 +33,7 @@ function runReport(req, res) {
 // utility function for checking criteria
 function checkCriteria(allContacts, criteria, value, method) {
     let contacts = allContacts.filter(contact =>
-        filterFunctions[method](contact.fields[criteria], value)
+        filterMethods[method](contact.fields[criteria], value)
     );
     return contacts;
 }
@@ -75,12 +75,17 @@ function update(req, res) {
 }
 
 
-let filterFunctions = {
-    exactMatch: function(value, criteriaValue) {
-        console.log(value, criteriaValue);
-        return value === criteriaValue;
-    },
-    includes: function(value, criteriaValue) {
-        return value.includes(criteriaValue);
-    }
+let filterMethods = {
+    // text methods
+    exactMatch: (value, criteriaValue) => value === criteriaValue,
+    includes: (value, criteriaValue) => value.includes(criteriaValue),
+    doesNotInclude: (value, criteriaValue) => !value.includes(criteriaValue),
+    startsWith: (value, criteriaValue) => value.startsWith(criteriaValue),
+    endsWith: (value, criteriaValue) => value.endsWith(criteriaValue),
+    // number methods
+    greaterThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == value,
+    lessThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == criteriaValue,
+    // boolean methods
+    true: value => Boolean(value),
+    false: value => !Boolean(value),
 }
