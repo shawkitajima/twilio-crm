@@ -33,8 +33,8 @@ function exportCsv(res, details, fields, fileName) {
             return res.json(err).status(500);
         }
         else {
-            setTimeout(() => fs.unlinkSync(filePath), 30000);
             res.download(filePath, `${fileName}-${dateTime}.csv`);
+            setTimeout(() => fs.unlinkSync(filePath), 30000);
         }
     });
 }

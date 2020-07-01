@@ -25,9 +25,12 @@ function runReport(req, res) {
                     contacts = [...checkCriteria(contacts, criteria.criteria, criteria.value, criteria.method)]
                 }
             });
-            let unnestedContacts = utilities.unnestContacts(contacts);
-            utilities.exportCsv(res, unnestedContacts, report.fields, report.name);
-            // res.send(contacts);
+            if (req.query && req.query.csv == 'true') {
+                let unnestedContacts = utilities.unnestContacts(contacts);
+                utilities.exportCsv(res, unnestedContacts, report.fields, report.name);
+            } else {
+                res.send(contacts);
+            }
         });
     })
 }
@@ -86,6 +89,7 @@ let filterMethods = {
     doesNotInclude: (value, criteriaValue) => !value.includes(criteriaValue),
     startsWith: (value, criteriaValue) => value.startsWith(criteriaValue),
     endsWith: (value, criteriaValue) => value.endsWith(criteriaValue),
+    hasValue: value => value.length > 0,
     // number methods
     greaterThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == value,
     lessThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == criteriaValue,
