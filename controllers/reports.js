@@ -1,5 +1,6 @@
 const Report = require('../models/report');
 const Contact = require('../models/contact');
+const utilities = require('./utilities');
 
 module.exports = {
     runReport,
@@ -23,8 +24,10 @@ function runReport(req, res) {
                 } else {
                     contacts = [...checkCriteria(contacts, criteria.criteria, criteria.value, criteria.method)]
                 }
-            })
-            res.send(contacts);
+            });
+            let unnestedContacts = utilities.unnestContacts(contacts);
+            utilities.exportCsv(res, unnestedContacts, report.name);
+            // res.send(contacts);
         });
     })
 }
@@ -86,6 +89,7 @@ let filterMethods = {
     greaterThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == value,
     lessThanOrEq: (value, criteriaValue) => Math.max(criteriaValue, value) == criteriaValue,
     // boolean methods
+    // If we can change the updates to the contacts to send booleans, we can just return the values
     true: value => value == 'true',
     false: value => value == 'false',
 }

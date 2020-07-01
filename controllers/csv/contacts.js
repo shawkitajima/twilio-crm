@@ -1,12 +1,11 @@
 const Contact = require('../../models/contact');
 const User = require('../../models/user');
-const csv=require('csvtojson')
-const mongoose = require('mongoose');
+const csv = require('csvtojson');
 
 module.exports = {
     create,
     deleteByIds,
-    updateByIds
+    updateByIds,
 }
 
 function create(req, res) {
@@ -98,5 +97,4 @@ function update(id, updateFields, contactFields) {
         });
     });
 }
-
 
