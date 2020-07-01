@@ -5,6 +5,7 @@ const reportSchema = new Schema({
   name: String,
   owner: Schema.Types.ObjectId,
   criteria: Array,
+  fields: Array,
 }, {
   timestamps: true
 });

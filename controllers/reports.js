@@ -26,7 +26,7 @@ function runReport(req, res) {
                 }
             });
             let unnestedContacts = utilities.unnestContacts(contacts);
-            utilities.exportCsv(res, unnestedContacts, report.name);
+            utilities.exportCsv(res, unnestedContacts, report.fields, report.name);
             // res.send(contacts);
         });
     })
@@ -52,6 +52,7 @@ function create(req, res) {
         name: req.body.name,
         owner: req.body.id,
         criteria: req.body.criteria,
+        fields: req.body.fields,
     }, function(err, report) {
         res.send(report);
     });

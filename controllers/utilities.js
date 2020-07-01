@@ -18,8 +18,7 @@ function unnestContacts(contacts) {
     return filteredContacts;
 }
 
-function exportCsv(res, details, fileName) {
-    let fields = ['id', 'first name', 'last name', 'email'];
+function exportCsv(res, details, fields, fileName) {
     let csv;
     try {
         csv = parse(details, {fields});
